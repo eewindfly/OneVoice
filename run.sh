@@ -5,11 +5,11 @@
 
 echo "OneVoice System Audio Transcription"
 echo "===================================="
-echo "Choose model and latency:"
-echo "1. High Accuracy (medium model, ~3-5s latency, 1.5GB)"
-echo "2. Good Quality (small model, ~2-3s latency, 450MB)"
-echo "3. Balanced (base model, ~1-2s latency, 140MB)"
-echo "4. Ultra Fast (tiny model, ~0.5-1s latency, 75MB)"
+echo "Choose model (all use same timing: 10s length, 3s step):"
+echo "1. High Accuracy (medium model, 1.5GB)"
+echo "2. Good Quality (small model, 450MB)"
+echo "3. Balanced (base model, 140MB)"
+echo "4. Ultra Fast (tiny model, 75MB)"
 echo ""
 read -p "Select option (1/2/3/4): " choice
 
@@ -48,41 +48,26 @@ case $choice in
     echo "Using medium model - High accuracy mode"
     MODEL="./ggml-medium.bin"
     MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin"
-    LENGTH="5000"
-    STEP="2000"
-    KEEP="200"
     ;;
   2)
     echo "Using small model - Good quality mode"
     MODEL="./ggml-small.bin"
     MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin"
-    LENGTH="4000"
-    STEP="1500"
-    KEEP="200"
     ;;
   3)
     echo "Using base model - Balanced mode"
     MODEL="./ggml-base.bin"
     MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin"
-    LENGTH="3000"
-    STEP="1000"
-    KEEP="200"
     ;;
   4)
     echo "Using tiny model - Ultra fast mode"
     MODEL="./ggml-tiny.bin"
     MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin"
-    LENGTH="2000"
-    STEP="500"
-    KEEP="200"
     ;;
   *)
-    echo "Invalid selection, using default balanced mode"
+    echo "Invalid selection, using default base model"
     MODEL="./ggml-base.bin"
     MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin"
-    LENGTH="3000"
-    STEP="1000"
-    KEEP="200"
     ;;
 esac
 
@@ -110,15 +95,12 @@ echo "----------------------------------------"
 echo "✅ Found BlackHole 2ch (Device ID: $DEVICE_ID)"
 echo "Language: English (en)"
 echo "Model: $MODEL"
-echo "Latency settings: length=$LENGTH, step=$STEP"
+echo "Using default timing: 10s length, 3s step, 200ms keep"
 echo "Press Ctrl+C to stop"
 echo "----------------------------------------"
 
-# Run whisper-stream
+# Run whisper-stream with default parameters
 /opt/homebrew/bin/whisper-stream \
   -m "$MODEL" \
   -l en \
-  --length "$LENGTH" \
-  --step "$STEP" \
-  --keep "$KEEP" \
   -c "$DEVICE_ID"
