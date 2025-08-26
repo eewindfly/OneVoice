@@ -5,12 +5,13 @@
 
 echo "OneVoice System Audio Transcription"
 echo "===================================="
-echo "Choose latency mode:"
-echo "1. High Accuracy (medium model, ~3-5s latency)"
-echo "2. Balanced (base model, ~1-2s latency)"
-echo "3. Ultra Low Latency (tiny model, ~0.5-1s latency)"
+echo "Choose model and latency:"
+echo "1. High Accuracy (medium model, ~3-5s latency, 1.5GB)"
+echo "2. Good Quality (small model, ~2-3s latency, 450MB)"
+echo "3. Balanced (base model, ~1-2s latency, 140MB)"
+echo "4. Ultra Fast (tiny model, ~0.5-1s latency, 75MB)"
 echo ""
-read -p "Select option (1/2/3): " choice
+read -p "Select option (1/2/3/4): " choice
 
 # Function to download model if not exists
 download_model() {
@@ -52,6 +53,14 @@ case $choice in
     KEEP="200"
     ;;
   2)
+    echo "Using small model - Good quality mode"
+    MODEL="./ggml-small.bin"
+    MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin"
+    LENGTH="4000"
+    STEP="1500"
+    KEEP="200"
+    ;;
+  3)
     echo "Using base model - Balanced mode"
     MODEL="./ggml-base.bin"
     MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin"
@@ -59,8 +68,8 @@ case $choice in
     STEP="1000"
     KEEP="200"
     ;;
-  3)
-    echo "Using tiny model - Ultra low latency mode"
+  4)
+    echo "Using tiny model - Ultra fast mode"
     MODEL="./ggml-tiny.bin"
     MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin"
     LENGTH="2000"
