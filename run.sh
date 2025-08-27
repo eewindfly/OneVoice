@@ -131,11 +131,66 @@ echo "✅ Selected: $DEVICE_NAME (Device ID: $DEVICE_ID)"
 echo "Language: English (en)"
 echo "Model: $MODEL"
 echo "Using default timing: 10s length, 3s step, 200ms keep"
-echo "Press Ctrl+C to stop"
-echo "----------------------------------------"
+echo ""
+echo "Choose display mode:"
+echo "1. Floating GUI Window (recommended)"
+echo "2. Terminal output only"
+echo ""
+read -p "Select option (1/2): " display_choice
 
-# Run whisper-stream with default parameters
-/opt/homebrew/bin/whisper-stream \
-  -m "$MODEL" \
-  -l en \
-  -c "$DEVICE_ID"
+case $display_choice in
+  1)
+    echo "🚀 Starting OneVoice with floating GUI window..."
+    echo "Press Ctrl+C to stop"
+    echo "----------------------------------------"
+    
+    # Check if Python GUI script exists
+    if [ ! -f "./onevoice_gui.py" ]; then
+        echo "❌ GUI script not found: ./onevoice_gui.py"
+        echo "Please ensure the GUI script is in the same directory."
+        exit 1
+    fi
+    
+    # Make sure GUI script is executable
+    chmod +x "./onevoice_gui.py"
+    
+    # Run whisper-stream and pipe output to GUI
+    /opt/homebrew/bin/whisper-stream \
+      -m "$MODEL" \
+      -l en \
+      -c "$DEVICE_ID" | python3 "./onevoice_gui.py"
+    ;;
+  2)
+    echo "📟 Starting OneVoice with terminal output..."
+    echo "Press Ctrl+C to stop"
+    echo "----------------------------------------"
+    
+    # Run whisper-stream with default parameters (terminal output)
+    /opt/homebrew/bin/whisper-stream \
+      -m "$MODEL" \
+      -l en \
+      -c "$DEVICE_ID"
+    ;;
+  *)
+    echo "Invalid selection, defaulting to floating GUI window..."
+    echo "🚀 Starting OneVoice with floating GUI window..."
+    echo "Press Ctrl+C to stop"
+    echo "----------------------------------------"
+    
+    # Check if Python GUI script exists
+    if [ ! -f "./onevoice_gui.py" ]; then
+        echo "❌ GUI script not found: ./onevoice_gui.py"
+        echo "Please ensure the GUI script is in the same directory."
+        exit 1
+    fi
+    
+    # Make sure GUI script is executable
+    chmod +x "./onevoice_gui.py"
+    
+    # Run whisper-stream and pipe output to GUI
+    /opt/homebrew/bin/whisper-stream \
+      -m "$MODEL" \
+      -l en \
+      -c "$DEVICE_ID" | python3 "./onevoice_gui.py"
+    ;;
+esac
