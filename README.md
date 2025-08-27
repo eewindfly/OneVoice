@@ -47,23 +47,23 @@ OneVoice captures and transcribes system audio in real-time using Whisper models
 
 ## Usage
 
-### Option 1: Quick GUI Launch (Recommended)
-
-```bash
-./launch_gui.sh
-```
-
-### Option 2: Main Script with Options
+### Option 1: Main Script (Recommended)
 
 ```bash
 ./run.sh
 ```
 
-Then select:
+Choose option 1 for floating GUI window when prompted.
 
-- Your preferred Whisper model (1-4)
-- Audio input device
-- Display mode: **1** for floating GUI window, **2** for terminal
+### Option 2: Terminal Output Only
+
+Choose option 2 for terminal output when prompted.
+
+**Script Options:**
+
+- Select your preferred Whisper model (1-4)
+- Choose audio input device
+- Pick display mode: **1** for floating GUI window, **2** for terminal output
 
 ### Option 3: GUI Only (for testing)
 
@@ -129,9 +129,8 @@ echo "Test transcription" | python3 onevoice_gui.py
 
 ## Files
 
-- `run.sh` - Main script with model selection and device setup
+- `run.sh` - Main script with model selection, device setup, and display options
 - `onevoice_gui.py` - Floating window GUI application
-- `launch_gui.sh` - Quick launcher for GUI mode
 - `ggml-*.bin` - Whisper model files (downloaded automatically)
 
 ## Technical Details
