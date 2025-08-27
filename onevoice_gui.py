@@ -16,11 +16,15 @@ import os
 import re
 
 class ANSIParser:
-    """Simple ANSI escape sequence cleaner for terminal output"""
+    """Simple ANSI escape sequence cleaner"""
     
     def __init__(self):
         # Pattern to match all ANSI escape sequences
         self.ansi_pattern = re.compile(r'\x1b\[[0-9;]*[a-zA-Z]')
+    
+    def has_2K(self, text):
+        """Check if text contains [2K sequence"""
+        return '[2K' in text
     
     def strip_ansi(self, text):
         """Remove all ANSI escape codes from text"""
@@ -187,28 +191,29 @@ class OneVoiceGUI:
             self.root.after(100, self.check_queue)
     
     def add_transcription(self, text):
-        """Add new transcription text to the display with ANSI cleaning"""
+        """Add new transcription text to the display"""
         if not text.strip():
             return
             
         # Update status to show active transcription
         self.status_label.config(text="🟢 Transcribing...", fg='#00ff00')
         
-        # Add timestamp
-        timestamp = datetime.now().strftime("%H:%M:%S")
-        
-        # Strip ANSI codes and insert clean text
+        # Strip ANSI codes to get clean text
         clean_text = self.ansi_parser.strip_ansi(text.strip())
+        
+        if not clean_text:  # If nothing left after stripping, ignore
+            return
+        
+        # If text has [2K, clear everything and show only new content
+        if self.ansi_parser.has_2K(text):
+            self.text_area.delete("1.0", tk.END)
+        
+        # Add new content with timestamp
+        timestamp = datetime.now().strftime("%H:%M:%S")
         self.text_area.insert(tk.END, f"[{timestamp}] {clean_text}\n\n")
         
         # Auto-scroll to bottom
         self.text_area.see(tk.END)
-        
-        # Limit text length to prevent memory issues
-        current_text = self.text_area.get("1.0", tk.END)
-        lines = current_text.split('\n')
-        if len(lines) > 100:  # Keep only last 100 lines
-            self.text_area.delete("1.0", f"{len(lines)-100}.0")
     
     def clear_text(self):
         """Clear all transcription text"""
