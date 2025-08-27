@@ -75,7 +75,7 @@ esac
 MODEL_NAME=$(basename "$MODEL" .bin)
 download_model "$MODEL" "$MODEL_NAME" "$MODEL_URL"
 
-# List available audio devices and let user choose
+# List available audio devices and let user choose (with built-in microphone as default)
 echo "Detecting available audio devices..."
 echo ""
 DEVICES_OUTPUT=$(/opt/homebrew/bin/whisper-stream -c -1 2>&1)
@@ -93,6 +93,25 @@ fi
 
 echo "$DEVICE_LINES"
 echo ""
+
+# Find built-in microphone for default
+RAW_DEVICE_LINES=$(echo "$DEVICES_OUTPUT" | grep "Capture device #")
+BUILTIN_MIC_LINE=$(echo "$RAW_DEVICE_LINES" | grep -i -E "(microphone|built-in|macbook|imac|mac mini)" | head -1)
+
+if [ -n "$BUILTIN_MIC_LINE" ]; then
+    DEFAULT_DEVICE_ID=$(echo "$BUILTIN_MIC_LINE" | grep -o "#[0-9]*" | cut -d# -f2)
+    DEFAULT_DEVICE_NAME=$(echo "$BUILTIN_MIC_LINE" | sed 's/.*Capture device #[0-9]*: //' | sed "s/'//g")
+    # Find the index in the numbered list
+    DEFAULT_INDEX=$(echo "$DEVICE_LINES" | grep "#$DEFAULT_DEVICE_ID:" | cut -f1 | tr -d ' ')
+    
+    echo "💡 Default: Built-in microphone ($DEFAULT_DEVICE_NAME) - Index $DEFAULT_INDEX"
+else
+    DEFAULT_INDEX="0"
+    DEFAULT_DEVICE_NAME="First available device"
+    echo "💡 Default: Index 0 (first device)"
+fi
+
+echo ""
 echo "Device recommendations:"
 echo "  - For system audio: Choose BlackHole 2ch (if installed)"
 echo "  - For microphone: Choose your built-in microphone"
@@ -103,22 +122,26 @@ echo ""
 DEVICE_COUNT=$(echo "$DEVICE_LINES" | wc -l | tr -d ' ')
 MAX_INDEX=$((DEVICE_COUNT - 1))
 
-# Let user select device
-while true; do
-    read -p "Select device (0-$MAX_INDEX): " DEVICE_CHOICE
-    
-    # Validate input
-    if [[ "$DEVICE_CHOICE" =~ ^[0-9]+$ ]] && [ "$DEVICE_CHOICE" -ge 0 ] && [ "$DEVICE_CHOICE" -le "$MAX_INDEX" ]; then
-        break
-    else
-        echo "❌ Invalid selection. Please enter a number between 0 and $MAX_INDEX."
-    fi
-done
+# Let user select device with timeout for default
+echo "Select device (0-$MAX_INDEX) or press Enter for default [$DEFAULT_INDEX]: "
+read -t 30 DEVICE_CHOICE
+
+# Handle timeout or empty input - use default
+if [ $? -ne 0 ] || [ -z "$DEVICE_CHOICE" ]; then
+    DEVICE_CHOICE="$DEFAULT_INDEX"
+    echo "⏰ Using default device (Index $DEFAULT_INDEX): $DEFAULT_DEVICE_NAME"
+fi
+
+# Validate input - if invalid, use default
+if ! [[ "$DEVICE_CHOICE" =~ ^[0-9]+$ ]] || [ "$DEVICE_CHOICE" -lt 0 ] || [ "$DEVICE_CHOICE" -gt "$MAX_INDEX" ]; then
+    echo "❌ Invalid selection '$DEVICE_CHOICE'. Using default device (Index $DEFAULT_INDEX): $DEFAULT_DEVICE_NAME"
+    DEVICE_CHOICE="$DEFAULT_INDEX"
+fi
 
 # Get the actual device ID from the selected line
 SELECTED_LINE=$(echo "$DEVICE_LINES" | sed -n "$((DEVICE_CHOICE + 1))p")
 DEVICE_ID=$(echo "$SELECTED_LINE" | grep -o "#[0-9]*" | cut -d# -f2)
-DEVICE_NAME=$(echo "$SELECTED_LINE" | sed 's/.*Capture device #[0-9]*: //')
+DEVICE_NAME=$(echo "$SELECTED_LINE" | sed 's/.*Capture device #[0-9]*: //' | sed "s/'//g")
 
 # Validate device ID was extracted
 if [ -z "$DEVICE_ID" ]; then

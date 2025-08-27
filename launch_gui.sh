@@ -23,7 +23,8 @@ fi
 
 echo "🚀 Launching OneVoice with floating GUI..."
 echo "   - The main menu will appear in terminal"
-echo "   - Select your audio device and model"
+echo "   - Choose your preferred AI model"
+echo "   - Select audio device (or use built-in microphone default)"
 echo "   - Choose option 1 for floating GUI when prompted"
 echo ""
 echo "Press Enter to continue..."
