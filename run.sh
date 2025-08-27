@@ -75,24 +75,59 @@ esac
 MODEL_NAME=$(basename "$MODEL" .bin)
 download_model "$MODEL" "$MODEL_NAME" "$MODEL_URL"
 
-# Auto-detect BlackHole device ID
-echo "Detecting audio devices..."
-BLACKHOLE_LINE=$(/opt/homebrew/bin/whisper-stream -c -1 2>&1 | grep "BlackHole")
+# List available audio devices and let user choose
+echo "Detecting available audio devices..."
+echo ""
+DEVICES_OUTPUT=$(/opt/homebrew/bin/whisper-stream -c -1 2>&1)
 
-if [ -z "$BLACKHOLE_LINE" ]; then
-    echo "❌ BlackHole not found! Available devices:"
-    /opt/homebrew/bin/whisper-stream -c -1 2>&1 | grep "Capture device"
-    echo ""
-    echo "Please install BlackHole from: https://existential.audio/blackhole/"
-    echo "Or manually specify device ID by editing this script."
+# Extract and display available devices
+echo "Available audio input devices:"
+echo "=============================="
+DEVICE_LINES=$(echo "$DEVICES_OUTPUT" | grep "Capture device #" | nl -v0)
+
+if [ -z "$DEVICE_LINES" ]; then
+    echo "❌ No audio devices found!"
+    echo "Please check your audio setup and try again."
     exit 1
 fi
 
-# Extract device ID from the line (e.g., "Capture device #1:" -> "1")
-DEVICE_ID=$(echo "$BLACKHOLE_LINE" | grep -o "#[0-9]*" | cut -d# -f2)
+echo "$DEVICE_LINES"
+echo ""
+echo "Device recommendations:"
+echo "  - For system audio: Choose BlackHole 2ch (if installed)"
+echo "  - For microphone: Choose your built-in microphone"
+echo "  - For external: Choose your external microphone/interface"
+echo ""
+
+# Get total number of devices
+DEVICE_COUNT=$(echo "$DEVICE_LINES" | wc -l | tr -d ' ')
+MAX_INDEX=$((DEVICE_COUNT - 1))
+
+# Let user select device
+while true; do
+    read -p "Select device (0-$MAX_INDEX): " DEVICE_CHOICE
+    
+    # Validate input
+    if [[ "$DEVICE_CHOICE" =~ ^[0-9]+$ ]] && [ "$DEVICE_CHOICE" -ge 0 ] && [ "$DEVICE_CHOICE" -le "$MAX_INDEX" ]; then
+        break
+    else
+        echo "❌ Invalid selection. Please enter a number between 0 and $MAX_INDEX."
+    fi
+done
+
+# Get the actual device ID from the selected line
+SELECTED_LINE=$(echo "$DEVICE_LINES" | sed -n "$((DEVICE_CHOICE + 1))p")
+DEVICE_ID=$(echo "$SELECTED_LINE" | grep -o "#[0-9]*" | cut -d# -f2)
+DEVICE_NAME=$(echo "$SELECTED_LINE" | sed 's/.*Capture device #[0-9]*: //')
+
+# Validate device ID was extracted
+if [ -z "$DEVICE_ID" ]; then
+    echo "❌ Failed to extract device ID. Please try again."
+    exit 1
+fi
 
 echo "----------------------------------------"
-echo "✅ Found BlackHole 2ch (Device ID: $DEVICE_ID)"
+echo "✅ Selected: $DEVICE_NAME (Device ID: $DEVICE_ID)"
 echo "Language: English (en)"
 echo "Model: $MODEL"
 echo "Using default timing: 10s length, 3s step, 200ms keep"
