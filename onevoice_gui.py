@@ -240,16 +240,7 @@ class OneVoiceGUI:
                 if self.running:
                     line = line.strip()
                     if line:
-                        # Filter out whisper-stream status messages
-                        if not any(skip in line.lower() for skip in [
-                            'whisper_init_from_file',
-                            'system_info',
-                            'ggml_init',
-                            'loading model',
-                            'operator()',
-                            'capture device'
-                        ]):
-                            self.input_queue.put(line)
+                        self.input_queue.put(line)
                 else:
                     break
         except EOFError:

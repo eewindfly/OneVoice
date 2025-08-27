@@ -158,7 +158,7 @@ case $display_choice in
     /opt/homebrew/bin/whisper-stream \
       -m "$MODEL" \
       -l en \
-      -c "$DEVICE_ID" | python3 "./onevoice_gui.py"
+      -c "$DEVICE_ID" 2>/dev/null | python3 "./onevoice_gui.py"
     ;;
   2)
     echo "📟 Starting OneVoice with terminal output..."
@@ -191,6 +191,6 @@ case $display_choice in
     /opt/homebrew/bin/whisper-stream \
       -m "$MODEL" \
       -l en \
-      -c "$DEVICE_ID" | python3 "./onevoice_gui.py"
+      -c "$DEVICE_ID" 2>/dev/null | python3 "./onevoice_gui.py"
     ;;
 esac
