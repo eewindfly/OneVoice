@@ -13,11 +13,24 @@ import time
 from datetime import datetime
 import json
 import os
+import re
+
+class ANSIParser:
+    """Simple ANSI escape sequence cleaner for terminal output"""
+    
+    def __init__(self):
+        # Pattern to match all ANSI escape sequences
+        self.ansi_pattern = re.compile(r'\x1b\[[0-9;]*[a-zA-Z]')
+    
+    def strip_ansi(self, text):
+        """Remove all ANSI escape codes from text"""
+        return self.ansi_pattern.sub('', text)
 
 class OneVoiceGUI:
     def __init__(self):
         self.running = True  # Initialize running first
         self.root = tk.Tk()
+        self.ansi_parser = ANSIParser()  # Initialize ANSI parser
         self.setup_window()
         self.setup_widgets()
         self.setup_input_queue()
@@ -174,7 +187,7 @@ class OneVoiceGUI:
             self.root.after(100, self.check_queue)
     
     def add_transcription(self, text):
-        """Add new transcription text to the display"""
+        """Add new transcription text to the display with ANSI cleaning"""
         if not text.strip():
             return
             
@@ -184,8 +197,9 @@ class OneVoiceGUI:
         # Add timestamp
         timestamp = datetime.now().strftime("%H:%M:%S")
         
-        # Insert new text
-        self.text_area.insert(tk.END, f"[{timestamp}] {text.strip()}\n\n")
+        # Strip ANSI codes and insert clean text
+        clean_text = self.ansi_parser.strip_ansi(text.strip())
+        self.text_area.insert(tk.END, f"[{timestamp}] {clean_text}\n\n")
         
         # Auto-scroll to bottom
         self.text_area.see(tk.END)
