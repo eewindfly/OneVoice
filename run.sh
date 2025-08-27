@@ -122,14 +122,13 @@ echo ""
 DEVICE_COUNT=$(echo "$DEVICE_LINES" | wc -l | tr -d ' ')
 MAX_INDEX=$((DEVICE_COUNT - 1))
 
-# Let user select device with timeout for default
-echo "Select device (0-$MAX_INDEX) or press Enter for default [$DEFAULT_INDEX]: "
-read -t 30 DEVICE_CHOICE
+# Let user select device or use default
+read -p "Select device (0-$MAX_INDEX) or press Enter for default [$DEFAULT_INDEX]: " DEVICE_CHOICE
 
-# Handle timeout or empty input - use default
-if [ $? -ne 0 ] || [ -z "$DEVICE_CHOICE" ]; then
+# Handle empty input - use default
+if [ -z "$DEVICE_CHOICE" ]; then
     DEVICE_CHOICE="$DEFAULT_INDEX"
-    echo "⏰ Using default device (Index $DEFAULT_INDEX): $DEFAULT_DEVICE_NAME"
+    echo "✅ Using default device (Index $DEFAULT_INDEX): $DEFAULT_DEVICE_NAME"
 fi
 
 # Validate input - if invalid, use default
@@ -156,10 +155,16 @@ echo "Model: $MODEL"
 echo "Using default timing: 10s length, 3s step, 200ms keep"
 echo ""
 echo "Choose display mode:"
-echo "1. Floating GUI Window (recommended)"
+echo "1. Floating GUI Window (default)"
 echo "2. Terminal output only"
 echo ""
-read -p "Select option (1/2): " display_choice
+read -p "Select display mode (1/2) or press Enter for GUI [1]: " display_choice
+
+# Handle empty input - use GUI as default
+if [ -z "$display_choice" ]; then
+    display_choice="1"
+    echo "✅ Using default: Floating GUI Window"
+fi
 
 case $display_choice in
   1)

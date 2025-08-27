@@ -53,7 +53,7 @@ OneVoice captures and transcribes system audio in real-time using Whisper models
 ./run.sh
 ```
 
-Choose option 1 for floating GUI window when prompted.
+GUI mode is the default - just press Enter when prompted.
 
 ### Option 2: Terminal Output Only
 
