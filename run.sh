@@ -5,11 +5,11 @@
 
 echo "OneVoice System Audio Transcription"
 echo "===================================="
-echo "Choose model (all use same timing: 10s length, 3s step):"
-echo "1. High Accuracy (medium model, 1.5GB)"
-echo "2. Good Quality (small model, 450MB)"
-echo "3. Balanced (base model, 140MB)"
-echo "4. Ultra Fast (tiny model, 75MB)"
+echo "Choose English-only model (all use same timing: 10s length, 3s step):"
+echo "1. High Accuracy (medium.en model, 769MB)"
+echo "2. Good Quality (small.en model, 244MB)"
+echo "3. Balanced (base.en model, 74MB)"
+echo "4. Ultra Fast (tiny.en model, 39MB)"
 echo ""
 read -p "Select option (1/2/3/4): " choice
 
@@ -45,29 +45,29 @@ download_model() {
 
 case $choice in
   1)
-    echo "Using medium model - High accuracy mode"
-    MODEL="./ggml-medium.bin"
-    MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin"
+    echo "Using medium.en model - High accuracy mode (English only)"
+    MODEL="./ggml-medium.en.bin"
+    MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.en.bin"
     ;;
   2)
-    echo "Using small model - Good quality mode"
-    MODEL="./ggml-small.bin"
-    MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin"
+    echo "Using small.en model - Good quality mode (English only)"
+    MODEL="./ggml-small.en.bin"
+    MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.en.bin"
     ;;
   3)
-    echo "Using base model - Balanced mode"
-    MODEL="./ggml-base.bin"
-    MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin"
+    echo "Using base.en model - Balanced mode (English only)"
+    MODEL="./ggml-base.en.bin"
+    MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin"
     ;;
   4)
-    echo "Using tiny model - Ultra fast mode"
-    MODEL="./ggml-tiny.bin"
-    MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin"
+    echo "Using tiny.en model - Ultra fast mode (English only)"
+    MODEL="./ggml-tiny.en.bin"
+    MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.en.bin"
     ;;
   *)
-    echo "Invalid selection, using default base model"
-    MODEL="./ggml-base.bin"
-    MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin"
+    echo "Invalid selection, using default base.en model"
+    MODEL="./ggml-base.en.bin"
+    MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin"
     ;;
 esac
 
